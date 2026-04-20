@@ -6,16 +6,9 @@ on:
       - "v*"
 
 jobs:
-  build-and-publish:
-    name: Build and publish to PyPI
+  build:
+    name: Verify tag and build
     runs-on: ubuntu-latest
-    # Required for PyPI trusted publishing (OIDC).
-    permissions:
-      id-token: write
-      contents: read
-    environment:
-      name: pypi
-      url: https://pypi.org/p/browser-harness
     steps:
       - uses: actions/checkout@v4
 
@@ -33,6 +26,3 @@ jobs:
 
       - name: Build
         run: uv build
-
-      - name: Publish to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
