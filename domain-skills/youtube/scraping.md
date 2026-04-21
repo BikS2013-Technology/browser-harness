@@ -368,7 +368,7 @@ The following are **not accessible** via `http_get` and require the CDP browser 
 - **Shorts feed** — requires JS hydration
 - **Channel Videos tab** — video list requires cookies for consistent results
 - **Caption text content** — `captionTracks[].baseUrl` URLs return empty bytes regardless of session state; use the browser's Show Transcript UI flow instead (see `playback.md`)
-- **Age-restricted videos** — oEmbed returns HTTP 401; `ytInitialPlayerResponse.playabilityStatus.status` is `"LOGIN_REQUIRED"`
+- **Age-restricted videos** — oEmbed returns HTTP 401; `scrape_video()` raises `ValueError("LOGIN_REQUIRED")`
 
 ---
 
@@ -399,6 +399,6 @@ The following are **not accessible** via `http_get` and require the CDP browser 
 - **Channel subscriber count is a rounded string** — `"4.48m subscribers"`, not an integer. Parse with regex if sorting: `re.search(r'([\d.]+)\s*([km]?)', text, re.I)`.
 - **`meta_parts` order is `[handle, subscribers, video_count]`** — the third element is not always present. Index defensively.
 - **Caption `baseUrl` is not fetchable** — `captionTracks[].baseUrl` contains `expire=` and `signature=` params but returns empty bytes in all tested conditions (plain `http_get`, XHR from within the page, and `fetch()` with cookies). Use the Show Transcript UI in the browser for caption text (see `playback.md`).
-- **Age-restricted videos** — `scrape_video()` will succeed but `pr.get("playabilityStatus", {}).get("status")` will be `"LOGIN_REQUIRED"`. Check before parsing `videoDetails`.
+- **Age-restricted videos** — `scrape_video()` raises `ValueError` with a `LOGIN_REQUIRED` message. `oEmbed` returns HTTP 401 (raises `urllib.error.HTTPError`). Neither approach can access age-restricted content without login.
 - **Private / deleted videos** — oEmbed returns HTTP 404 (raises `urllib.error.HTTPError`). Wrap in `try/except`.
 - **`ytInitialData` blob terminator is `;</script>`** — using `re.DOTALL` with `(\{.*?\});</script>` is safe; the blob does not contain `;</script>` internally.
